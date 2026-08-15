@@ -106,6 +106,7 @@ Cloud Custodian 실행
 Verification
     ↓
 Prowler 재스캔
+
 주의사항
 Custodian 실행은 기본적으로 --dryrun을 통해 대상을 먼저 확인합니다.
 실제 AWS 계정의 Prowler 원본 출력 및 자격증명은 Git에 저장하지 않습니다.
