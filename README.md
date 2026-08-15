@@ -1,4 +1,3 @@
-# cspm-remediation-policies
 # CSPM Remediation Policies
 
 Prowler의 AWS 보안 점검 결과를 기반으로 Cloud Custodian 정책과 연결하여
