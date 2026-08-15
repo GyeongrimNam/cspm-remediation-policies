@@ -1,9 +1,9 @@
 # CSPM Remediation Policies
 
-Prowler의 AWS 보안 점검 결과를 기반으로 Cloud Custodian 정책과 연결하여
+Prowler의 AWS 보안 점검 결과를 기반으로 Cloud Custodian 정책과 연결하여  
 취약 설정에 대한 대응 정책을 관리하기 위한 저장소입니다.
 
-## 주요 구성
+## 프로젝트 구조
 
 ```text
 .
@@ -19,32 +19,36 @@ Prowler의 AWS 보안 점검 결과를 기반으로 Cloud Custodian 정책과 �
 ├── scripts/
 │   └── migrate_policy_metadata.py
 └── verification.yml
-mapping.yml
+```
 
-Prowler check_id와 대응 정책을 연결합니다.
+## 구성 요소
 
-주요 정보:
+### `mapping.yml`
 
-Custodian policy
-remediation mode
-auto 실행 가능 여부
-scope
-risk note
-guide
-policies/
+Prowler의 `check_id`와 대응 정책을 연결합니다.
+
+주요 정보는 다음과 같습니다.
+
+- Custodian policy
+- remediation mode
+- auto 실행 가능 여부
+- scope
+- risk note
+- guide
+
+### `policies/`
 
 Cloud Custodian 정책을 서비스별로 관리합니다.
 
-각 정책은 다음 구조를 사용합니다.
+각 정책은 다음과 같은 구조를 사용합니다.
 
+```yaml
 policies:
   - name: example-policy
     resource: aws.example
 
-
     metadata:
       prowler_check: example_check
-
 
       approve:
         disruption: none
@@ -54,7 +58,6 @@ policies:
         cost_impact: none
         risk_note: ...
 
-
       auto:
         warning: ...
         allowed_scopes:
@@ -63,34 +66,38 @@ policies:
         cooldown: 24h
         post_notification: log
 
-
     filters:
       - ...
 
-
     actions:
       - ...
+```
 
-auto는 mapping.yml에서 auto_eligible: true인 정책에만 존재합니다.
+`auto` 블록은 `mapping.yml`에서 `auto_eligible: true`인 정책에만 존재합니다.
 
-runbooks/
+### `runbooks/`
 
-자동 조치가 불가능하거나 직접 조치가 필요한 경우 사용할
+자동 조치가 불가능하거나 직접 조치가 필요한 경우 사용할  
 수동 대응 절차를 관리합니다.
 
-verification.yml
+### `verification.yml`
 
-Custodian 조치 이후 설정이 정상적으로 반영되었는지 확인하기 위한
+Custodian 조치 이후 설정이 정상적으로 반영되었는지 확인하기 위한  
 검증 규칙을 관리합니다.
 
-scripts/migrate_policy_metadata.py
+### `scripts/migrate_policy_metadata.py`
 
-mapping.yml을 기준으로 기존 Custodian 정책의 metadata를
+`mapping.yml`을 기준으로 기존 Custodian 정책의 metadata를  
 현재 스키마로 마이그레이션하고 검증합니다.
 
+```bash
 python3 scripts/migrate_policy_metadata.py --check
 python3 scripts/migrate_policy_metadata.py --apply
-처리 흐름
+```
+
+## 처리 흐름
+
+```text
 Prowler Scan
     ↓
 Finding Parsing
@@ -106,8 +113,11 @@ Cloud Custodian 실행
 Verification
     ↓
 Prowler 재스캔
+```
 
-주의사항
-Custodian 실행은 기본적으로 --dryrun을 통해 대상을 먼저 확인합니다.
-실제 AWS 계정의 Prowler 원본 출력 및 자격증명은 Git에 저장하지 않습니다.
-venv/, __pycache__/, Prowler 실행 결과 등은 .gitignore로 제외합니다.
+## 주의사항
+
+- Custodian 실행 전 `--dryrun`을 통해 조치 대상을 먼저 확인합니다.
+- 실제 AWS 계정의 Prowler 원본 출력은 Git에 저장하지 않습니다.
+- AWS 자격증명 및 비밀정보를 저장소에 포함하지 않습니다.
+- `venv/`, `__pycache__/`, Prowler 실행 결과 등은 `.gitignore`로 제외합니다.
