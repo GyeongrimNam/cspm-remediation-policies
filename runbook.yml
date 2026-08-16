@@ -1430,6 +1430,30 @@ iam_root_mfa_enabled:
 
   docs_url: https://hub.prowler.com/check/iam_root_mfa_enabled
 
+iam_avoid_root_usage:
+  method: console
+
+  description: >-
+    Minimize `root` usage by applying **least privilege** with admin roles or
+    federated SSO and temporary credentials.
+
+    - Enforce **MFA** on root
+    - Avoid or remove root access keys
+    - Require multi-person approval
+    - **Monitor and alert** on any root sign-in
+    - Use org guardrails for **defense in depth**
+
+  command_template: null
+
+  console_steps:
+    - Sign in to the AWS Management Console as the root user
+    - In the top-right, click your account name > Security credentials
+    - Under Access keys for the root user, delete all existing keys
+    - Sign out of the root user and do not use it again
+    - Wait 24 hours until the root user has not been accessed for a full day, then rerun the check
+
+  docs_url: https://hub.prowler.com/check/iam_avoid_root_usage
+
 
 iam_securityaudit_role_created:
   method: cli_or_console

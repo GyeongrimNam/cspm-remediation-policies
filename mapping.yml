@@ -464,6 +464,7 @@ iam_role_cross_service_confused_deputy_prevention:
   runbook: iam_role_cross_service_confused_deputy_prevention
   auto_eligible: false
   scope_key: null
+
 iam_root_credentials_management_enabled:
   policy: null
   mode: manual
@@ -480,6 +481,12 @@ iam_root_mfa_enabled:
   policy: null
   mode: manual
   runbook: iam_root_mfa_enabled
+  auto_eligible: false
+  scope_key: null
+iam_avoid_root_usage:
+  policy: null
+  mode: manual
+  runbook: iam_avoid_root_usage
   auto_eligible: false
   scope_key: null
 iam_securityaudit_role_created:
@@ -645,3 +652,5 @@ wafv2_webacl_logging_enabled:
   runbook: wafv2_webacl_logging_enabled
   auto_eligible: false
   scope_key: null
+
+
