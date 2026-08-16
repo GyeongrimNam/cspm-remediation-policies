@@ -627,11 +627,12 @@ vpc_flow_logs_enabled:
   auto_eligible: false
   scope_key: null
 vpc_subnet_no_public_ip_by_default:
-  policy: null
-  mode: manual
-  runbook: vpc_subnet_no_public_ip_by_default
+  policy: vpc-subnet-no-public-ip-by-default
+  mode: approve
   auto_eligible: false
-  scope_key: null
+  scope_key: SubnetId
+  risk_note: >-
+    Public IP 자동 할당을 전제로 한 배포 구조에서는 이후 생성되는 리소스의 네트워크 접근 방식에 영향을 줄 수 있으므로 승인 후 실행한다
 vpc_subnet_separate_private_public:
   policy: null
   mode: manual
