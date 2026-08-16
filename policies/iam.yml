@@ -1,21 +1,24 @@
 ﻿# ============================================================
 # IAM 정책 모음
-#
-# mapping.yml 에 등록된 IAM check_id 에 대응하는
-# Custodian 정책을 하나의 파일에서 관리한다.
-#
-# 이번 파일은 auto_eligible=true 인 IAM Password Policy 6개의
-# 뼈대만 작성한다. filters / actions 는 Custodian 문법 확인 후
-# 후속 작업에서 채운다.
 # ============================================================
+# 실행 구조:
+# DB check_id
+#   → mapping.yml에서 policy 조회
+#   → Python 오케스트레이터가 해당 Custodian policy 실행
+#   → Prowler에서 동일 check_id 재검사
+#
+# IAM Password Policy 6개는 하나의 계정 Password Policy를 공유하지만,
+# set-password-policy는 지정한 항목만 변경하므로 check_id별 정책 분리가 가능하다.
+#
+# 계정 단위 설정이므로 blast_radius는 account이며,
+# 기존 로그인/비밀번호를 즉시 차단하지 않아 disruption은 none으로 설정한다.
+# ============================================================
+
 
 policies:
 
   # ----------------------------------------------------------
   # iam_password_policy_lowercase
-  #
-  # 계정 전체 IAM Password Policy 의
-  # RequireLowercaseCharacters 를 true 로 설정한다.
   # ----------------------------------------------------------
 
   - name: iam-password-policy-lowercase
@@ -25,14 +28,21 @@ policies:
       IAM 계정 Password Policy 의 소문자 요구 조건이
       활성화되어 있지 않은 계정
 
-    filters: []  # TODO: Custodian filter 문법 확인
-    actions: []  # TODO: Custodian action 문법 확인 후 작성
+    filters:
+      - type: password-policy
+        key: RequireLowercaseCharacters
+        value: false
+
+    actions:
+      - type: set-password-policy
+        policy:
+          RequireLowercaseCharacters: true
 
     metadata:
       prowler_check: iam_password_policy_lowercase
 
       approve:
-        disruption: access
+        disruption: none
         blast_radius: account
         propagation_delay: immediate
         reversible: true
@@ -43,13 +53,17 @@ policies:
       auto:
         warning: >
           Auto 활성화 시 opt-in한 계정에서 동일 위반이 다시 탐지되면 사용자 승인 없이 해당 IAM Password Policy 요구 조건이 자동으로 적용됩니다. 이후 비밀번호 변경 시 새 요구사항이 적용될 수 있습니다.
-
         allowed_scopes:
           - account
-
         rollback_cli: null
         cooldown: 24h
         post_notification: log
+
+
+  # ----------------------------------------------------------
+  # iam_password_policy_minimum_length_14
+  # ----------------------------------------------------------
+
   - name: iam-password-policy-minimum-length-14
     resource: aws.account
 
@@ -57,14 +71,22 @@ policies:
       IAM 계정 Password Policy 의 최소 비밀번호 길이가
       14 미만인 계정
 
-    filters: []  # TODO: Custodian filter 문법 확인
-    actions: []  # TODO: Custodian action 문법 확인 후 작성
+    filters:
+      - type: password-policy
+        key: MinimumPasswordLength
+        value: 14
+        op: lt
+
+    actions:
+      - type: set-password-policy
+        policy:
+          MinimumPasswordLength: 14
 
     metadata:
       prowler_check: iam_password_policy_minimum_length_14
 
       approve:
-        disruption: access
+        disruption: none
         blast_radius: account
         propagation_delay: immediate
         reversible: true
@@ -75,13 +97,17 @@ policies:
       auto:
         warning: >
           Auto 활성화 시 opt-in한 계정에서 동일 위반이 다시 탐지되면 사용자 승인 없이 해당 IAM Password Policy 요구 조건이 자동으로 적용됩니다. 이후 비밀번호 변경 시 새 요구사항이 적용될 수 있습니다.
-
         allowed_scopes:
           - account
-
         rollback_cli: null
         cooldown: 24h
         post_notification: log
+
+
+  # ----------------------------------------------------------
+  # iam_password_policy_number
+  # ----------------------------------------------------------
+
   - name: iam-password-policy-number
     resource: aws.account
 
@@ -89,14 +115,21 @@ policies:
       IAM 계정 Password Policy 의 숫자 포함 요구 조건이
       활성화되어 있지 않은 계정
 
-    filters: []  # TODO: Custodian filter 문법 확인
-    actions: []  # TODO: Custodian action 문법 확인 후 작성
+    filters:
+      - type: password-policy
+        key: RequireNumbers
+        value: false
+
+    actions:
+      - type: set-password-policy
+        policy:
+          RequireNumbers: true
 
     metadata:
       prowler_check: iam_password_policy_number
 
       approve:
-        disruption: access
+        disruption: none
         blast_radius: account
         propagation_delay: immediate
         reversible: true
@@ -107,13 +140,17 @@ policies:
       auto:
         warning: >
           Auto 활성화 시 opt-in한 계정에서 동일 위반이 다시 탐지되면 사용자 승인 없이 해당 IAM Password Policy 요구 조건이 자동으로 적용됩니다. 이후 비밀번호 변경 시 새 요구사항이 적용될 수 있습니다.
-
         allowed_scopes:
           - account
-
         rollback_cli: null
         cooldown: 24h
         post_notification: log
+
+
+  # ----------------------------------------------------------
+  # iam_password_policy_reuse_24
+  # ----------------------------------------------------------
+
   - name: iam-password-policy-reuse-24
     resource: aws.account
 
@@ -121,14 +158,27 @@ policies:
       IAM 계정 Password Policy 의 이전 비밀번호 재사용 방지가
       최근 24개 미만으로 설정된 계정
 
-    filters: []  # TODO: Custodian filter 문법 확인
-    actions: []  # TODO: Custodian action 문법 확인 후 작성
+    filters:
+      - or:
+          - type: password-policy
+            key: PasswordReusePrevention
+            value: absent
+
+          - type: password-policy
+            key: PasswordReusePrevention
+            value: 24
+            op: lt
+
+    actions:
+      - type: set-password-policy
+        policy:
+          PasswordReusePrevention: 24
 
     metadata:
       prowler_check: iam_password_policy_reuse_24
 
       approve:
-        disruption: access
+        disruption: none
         blast_radius: account
         propagation_delay: immediate
         reversible: true
@@ -139,13 +189,17 @@ policies:
       auto:
         warning: >
           Auto 활성화 시 opt-in한 계정에서 동일 위반이 다시 탐지되면 사용자 승인 없이 해당 IAM Password Policy 요구 조건이 자동으로 적용됩니다. 이후 비밀번호 변경 시 새 요구사항이 적용될 수 있습니다.
-
         allowed_scopes:
           - account
-
         rollback_cli: null
         cooldown: 24h
         post_notification: log
+
+
+  # ----------------------------------------------------------
+  # iam_password_policy_symbol
+  # ----------------------------------------------------------
+
   - name: iam-password-policy-symbol
     resource: aws.account
 
@@ -153,14 +207,21 @@ policies:
       IAM 계정 Password Policy 의 특수문자 포함 요구 조건이
       활성화되어 있지 않은 계정
 
-    filters: []  # TODO: Custodian filter 문법 확인
-    actions: []  # TODO: Custodian action 문법 확인 후 작성
+    filters:
+      - type: password-policy
+        key: RequireSymbols
+        value: false
+
+    actions:
+      - type: set-password-policy
+        policy:
+          RequireSymbols: true
 
     metadata:
       prowler_check: iam_password_policy_symbol
 
       approve:
-        disruption: access
+        disruption: none
         blast_radius: account
         propagation_delay: immediate
         reversible: true
@@ -171,13 +232,17 @@ policies:
       auto:
         warning: >
           Auto 활성화 시 opt-in한 계정에서 동일 위반이 다시 탐지되면 사용자 승인 없이 해당 IAM Password Policy 요구 조건이 자동으로 적용됩니다. 이후 비밀번호 변경 시 새 요구사항이 적용될 수 있습니다.
-
         allowed_scopes:
           - account
-
         rollback_cli: null
         cooldown: 24h
         post_notification: log
+
+
+  # ----------------------------------------------------------
+  # iam_password_policy_uppercase
+  # ----------------------------------------------------------
+
   - name: iam-password-policy-uppercase
     resource: aws.account
 
@@ -185,14 +250,21 @@ policies:
       IAM 계정 Password Policy 의 대문자 요구 조건이
       활성화되어 있지 않은 계정
 
-    filters: []  # TODO: Custodian filter 문법 확인
-    actions: []  # TODO: Custodian action 문법 확인 후 작성
+    filters:
+      - type: password-policy
+        key: RequireUppercaseCharacters
+        value: false
+
+    actions:
+      - type: set-password-policy
+        policy:
+          RequireUppercaseCharacters: true
 
     metadata:
       prowler_check: iam_password_policy_uppercase
 
       approve:
-        disruption: access
+        disruption: none
         blast_radius: account
         propagation_delay: immediate
         reversible: true
@@ -203,10 +275,8 @@ policies:
       auto:
         warning: >
           Auto 활성화 시 opt-in한 계정에서 동일 위반이 다시 탐지되면 사용자 승인 없이 해당 IAM Password Policy 요구 조건이 자동으로 적용됩니다. 이후 비밀번호 변경 시 새 요구사항이 적용될 수 있습니다.
-
         allowed_scopes:
           - account
-
         rollback_cli: null
         cooldown: 24h
         post_notification: log

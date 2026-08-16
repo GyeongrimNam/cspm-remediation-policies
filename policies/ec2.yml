@@ -10,6 +10,7 @@
 # 실행은 --dryrun을 기본으로 한다.
 # ============================================================
 
+
 policies:
 
   # ----------------------------------------------------------
@@ -149,10 +150,6 @@ policies:
 
           - type: ec2-metadata-defaults
             key: HttpTokens
-            value: no-preference
-
-          - type: ec2-metadata-defaults
-            key: HttpTokens
             value: absent
 
     actions:
@@ -244,55 +241,4 @@ policies:
         state: enable
 
 
-  # ----------------------------------------------------------
-  # ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip
-  #
-  # Public IPv4 CIDR을 Source로 사용하는
-  # Security Group ingress rule을 찾아 제거한다.
-  #
-  # 정상적인 관리자 또는 외부 서비스 접근까지
-  # 차단할 가능성이 있으므로 mapping.yml에서는 approve.
-  # ----------------------------------------------------------
-
-  - name: ec2-securitygroup-allow-ingress-from-internet-to-any-port-from-ip
-    resource: aws.security-group
-
-    description: >
-      Public IPv4 CIDR을 Source로 사용하는
-      ingress rule이 존재하는 Security Group
-
-    metadata:
-      prowler_check: ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip
-
-      approve:
-        disruption: traffic
-        blast_radius: resource
-        propagation_delay: seconds
-        reversible: true
-        cost_impact: none
-        risk_note: >-
-          Public IP 기반 ingress rule을 제거하면 정상적인 관리자 또는 외부 서비스의 접근까지 차단될 수 있으므로 승인 후 실행한다
-
-    filters:
-      - type: ingress
-        Cidr:
-          value_type: cidr
-          op: not-in
-          value:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-            - 100.64.0.0/10
-            - 127.0.0.0/8
-            - 169.254.0.0/16
-            - 192.0.0.0/24
-            - 192.0.2.0/24
-            - 198.18.0.0/15
-            - 198.51.100.0/24
-            - 203.0.113.0/24
-            - 224.0.0.0/4
-            - 240.0.0.0/4
-
-    actions:
-      - type: remove-permissions
-        ingress: matched
+  

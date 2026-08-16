@@ -25,7 +25,7 @@
       approve:
         disruption: none
         blast_radius: resource
-        propagation_delay: hours
+        propagation_delay: seconds
         reversible: true
         cost_impact: low
         risk_note: >-
@@ -38,6 +38,6 @@
         allowed_scopes:
           - resource
 
-        rollback_cli: aws cloudtrail update-trail --name {trail_name} --no-enable-log-file-validation
+        rollback_cli: aws cloudtrail update-trail --name {trail_name} --no-enable-log-file-validation #실행기 구현에 맞춰야 함
         cooldown: 24h
         post_notification: log
