@@ -1096,57 +1096,6 @@ ec2_securitygroup_not_used:
   docs_url: https://hub.prowler.com/check/ec2_securitygroup_not_used
 
 
-elbv2_alb_drop_invalid_header_fields_enabled:
-  method: cli_or_console
-
-  description: >-
-    Enable 'drop invalid header fields' on Application Load Balancers so non-RFC-compliant HTTP headers are removed before
-    requests reach backend targets, reducing exposure to HTTP desync and request smuggling. Apply defense in depth and validate
-    requests at the application layer as well.
-
-  command_template: >-
-    aws elbv2 modify-load-balancer-attributes
-
-    --load-balancer-arn <ALB_ARN>
-
-    --attributes Key=routing.http.drop_invalid_header_fields.enabled,Value=true
-
-  console_steps:
-  - Open the Amazon EC2 console and choose Load Balancers.
-  - Select the Application Load Balancer.
-  - On the Attributes tab, choose Edit.
-  - Set 'Drop invalid header fields' to Enabled.
-  - Save changes.
-
-  docs_url: https://hub.prowler.com/check/elbv2_alb_drop_invalid_header_fields_enabled
-
-
-elbv2_deletion_protection:
-  method: cli_or_console
-
-  description: >-
-    Enable **deletion protection** for production and other critical load balancers.
-
-    Enforce **least privilege** to restrict delete actions, apply governance (tags and policy guardrails) for protected assets,
-    and require **change control** with approvals. *For pipelines*, add checks that block deletion of protected resources.
-
-  command_template: >-
-    aws elbv2 modify-load-balancer-attributes
-
-    --load-balancer-arn <lb_arn>
-
-    --attributes Key=deletion_protection.enabled,Value=true
-
-  console_steps:
-  - In the AWS Console, go to EC2 > Load Balancers (under Load Balancing)
-  - Select the target load balancer
-  - Open the Attributes tab and click Edit attributes
-  - Enable Deletion protection
-  - Click Save changes
-
-  docs_url: https://hub.prowler.com/check/elbv2_deletion_protection
-
-
 elbv2_logging_enabled:
   method: cli_or_console
 
@@ -1430,29 +1379,7 @@ iam_root_mfa_enabled:
 
   docs_url: https://hub.prowler.com/check/iam_root_mfa_enabled
 
-iam_avoid_root_usage:
-  method: console
 
-  description: >-
-    Minimize `root` usage by applying **least privilege** with admin roles or
-    federated SSO and temporary credentials.
-
-    - Enforce **MFA** on root
-    - Avoid or remove root access keys
-    - Require multi-person approval
-    - **Monitor and alert** on any root sign-in
-    - Use org guardrails for **defense in depth**
-
-  command_template: null
-
-  console_steps:
-    - Sign in to the AWS Management Console as the root user
-    - In the top-right, click your account name > Security credentials
-    - Under Access keys for the root user, delete all existing keys
-    - Sign out of the root user and do not use it again
-    - Wait 24 hours until the root user has not been accessed for a full day, then rerun the check
-
-  docs_url: https://hub.prowler.com/check/iam_avoid_root_usage
 
 
 iam_securityaudit_role_created:
@@ -1770,36 +1697,6 @@ s3_bucket_object_lock:
     and migrate objects.'
 
   docs_url: https://hub.prowler.com/check/s3_bucket_object_lock
-
-
-s3_bucket_object_versioning:
-  method: cli_or_console
-
-  description: >-
-    Enable **S3 versioning** for buckets holding important or shared data.
-
-    - Enforce **least privilege** to limit delete/overwrite
-
-    - Use **Object Lock** and/or **MFA Delete** for stronger protection
-
-    - Apply **lifecycle rules** to manage noncurrent versions and costs
-
-    - Layer with backups/replication for **defense in depth**
-
-  command_template: >-
-    aws s3api put-bucket-versioning
-
-    --bucket <BUCKET_NAME>
-
-    --versioning-configuration Status=Enabled
-
-  console_steps:
-  - In the AWS Console, go to S3 > Buckets and select the target bucket
-  - Open the Properties tab
-  - Find Bucket Versioning and click Edit
-  - Select Enable and click Save changes
-
-  docs_url: https://hub.prowler.com/check/s3_bucket_object_versioning
 
 
 s3_bucket_server_access_logging_enabled:

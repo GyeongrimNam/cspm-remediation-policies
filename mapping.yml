@@ -399,17 +399,17 @@ ec2_securitygroup_not_used:
   auto_eligible: false
   scope_key: null
 elbv2_alb_drop_invalid_header_fields_enabled:
-  policy: null
-  mode: manual
-  runbook: elbv2_alb_drop_invalid_header_fields_enabled
+  policy: elbv2-alb-drop-invalid-header-fields-enabled
+  mode: approve
   auto_eligible: false
-  scope_key: null
+  scope_key: LoadBalancerArn
+  risk_note: 비정상 HTTP 헤더를 사용하는 요청이 ALB에서 차단될 수 있으므로 승인 후 실행한다
 elbv2_deletion_protection:
-  policy: null
-  mode: manual
-  runbook: elbv2_deletion_protection
+  policy: elbv2-deletion-protection
+  mode: approve
   auto_eligible: false
-  scope_key: null
+  scope_key: LoadBalancerArn
+  risk_note: ALB 삭제 작업을 수행하려면 deletion protection을 먼저 해제해야 하므로 승인 후 실행한다
 elbv2_logging_enabled:
   policy: null
   mode: manual
@@ -562,11 +562,11 @@ s3_bucket_object_lock:
   auto_eligible: false
   scope_key: null
 s3_bucket_object_versioning:
-  policy: null
-  mode: manual
-  runbook: s3_bucket_object_versioning
+  policy: s3-bucket-object-versioning
+  mode: approve
   auto_eligible: false
-  scope_key: null
+  scope_key: Name
+  risk_note: 이후 객체 변경 또는 삭제 시 버전이 누적되어 S3 저장 비용이 증가할 수 있으므로 승인 후 실행한다
 s3_bucket_server_access_logging_enabled:
   policy: null
   mode: manual
