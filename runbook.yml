@@ -1222,6 +1222,90 @@ iam_aws_attached_policy_no_administrative_privileges:
   docs_url: https://hub.prowler.com/check/iam_aws_attached_policy_no_administrative_privileges
 
 
+iam_user_administrator_access_policy:
+  method: cli_or_console
+
+  description: >-
+    Review the target IAM User and all effective permissions from managed policies, inline policies, and group memberships.
+    Determine how AdministratorAccess is used, using CloudTrail and other available activity records, then design and attach
+    a least-privilege replacement policy. Validate that required AWS tasks work with the replacement before detaching
+    AdministratorAccess, and verify user access and business impact after the change.
+
+  command_template: >-
+    aws iam detach-user-policy
+
+    --user-name <USERNAME>
+
+    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+
+  console_steps:
+  - In the AWS Console, go to IAM > Users and select the flagged IAM User
+  - Review managed policies, inline policies, and permissions inherited through IAM Groups
+  - Review CloudTrail and available activity records to identify how AdministratorAccess is used
+  - Determine the required business permissions and prepare a least-privilege replacement policy
+  - Attach the replacement least-privilege policy to the IAM User before removing AdministratorAccess
+  - Validate that the IAM User can perform all required AWS tasks with the replacement permissions
+  - Only after successful validation, detach AdministratorAccess from the IAM User
+  - Verify the IAM User still has required access and confirm there is no business impact
+
+  docs_url: https://hub.prowler.com/check/iam_user_administrator_access_policy
+
+
+iam_role_administratoraccess_policy:
+  method: cli_or_console
+
+  description: >-
+    Review the target IAM Role and all effective permissions from attached managed policies and inline policies.
+    Determine how AdministratorAccess is used by workloads assuming this role, using CloudTrail and other available
+    activity records, then design and attach a least-privilege replacement policy. Validate that workloads perform
+    required AWS tasks with the replacement before detaching AdministratorAccess, and re-verify service behavior
+    after the change. Cross-account recovery-path roles such as OrganizationAccountAccessRole must be excluded from
+    remediation — detaching AdministratorAccess from these roles can lock out the emergency recovery access path
+    (2026-08-18 incident secondary cause).
+
+  command_template: >-
+    aws iam detach-role-policy
+
+    --role-name <ROLE_NAME>
+
+    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+
+  console_steps:
+  - In the AWS Console, go to IAM > Roles and select the flagged IAM Role
+  - Confirm the target role is NOT a cross-account recovery-path role such as OrganizationAccountAccessRole; if it is, exclude it from remediation
+  - Review attached managed policies and inline policies on the role
+  - Review CloudTrail and available activity records to identify how AdministratorAccess is used by workloads assuming this role
+  - Determine the required business permissions and prepare a least-privilege replacement policy
+  - Attach the replacement least-privilege policy to the IAM Role before removing AdministratorAccess
+  - Validate that workloads assuming this role can perform all required AWS tasks with the replacement permissions
+  - Only after successful validation, detach AdministratorAccess from the IAM Role
+  - Re-validate that workloads continue to operate correctly and confirm there is no service impact
+
+  docs_url: https://hub.prowler.com/check/iam_role_administratoraccess_policy
+
+
+ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip:
+  method: console
+
+  description: >-
+    Review all security group rules with specific public IP sources. Remove stale entries for former employees or expired
+    access. Use VPN, AWS Systems Manager Session Manager, or AWS Client VPN instead of direct IP-based access. For
+    third-party integrations, use VPC endpoints or AWS PrivateLink where possible.
+
+  command_template: null
+
+  console_steps:
+  - Sign in to the AWS Management Console and go to EC2 > Security Groups
+  - Select the affected security group
+  - Open the Inbound rules tab and click Edit inbound rules
+  - Review all inbound rules with a specific public IP CIDR in Source and identify stale entries left from former employees or expired access
+  - Remove or restrict each rule with a Source that is a public IP address; prefer VPN, AWS Systems Manager Session Manager, or AWS Client VPN over direct IP-based access
+  - For third-party integrations, replace public IP allowlist rules with VPC endpoints or AWS PrivateLink where possible
+  - Click Save rules
+
+  docs_url: https://hub.prowler.com/check/ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip
+
+
 iam_check_saml_providers_sts:
   method: cli_or_console
 

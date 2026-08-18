@@ -66,32 +66,23 @@ ec2_instance_detailed_monitoring_enabled:
     EC2 Detailed Monitoring 활성화는 서비스 중단 없이 가능하지만 CloudWatch Metric에 따른 추가
     비용이 발생하므로 승인 후 실행한다
 ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip:
-  policy: ec2-securitygroup-allow-ingress-from-internet-to-any-port-from-ip
-  mode: approve
+  policy: null
+  mode: manual
+  runbook: ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip
   auto_eligible: false
-  auto_reason: 제거 대상 ingress rule의 관리자·외부 서비스 정상 사용 여부 자동 확인 불가
-  scope_key: GroupId
-  risk_note:
-    Public IP 기반 ingress rule을 제거하면 정상적인 관리자 또는 외부 서비스의 접근까지 차단될 수 있으므로 승인
-    후 실행한다
+  scope_key: null
 iam_role_administratoraccess_policy:
-  policy: iam-role-administratoraccess-policy
-  mode: approve
+  policy: null
+  mode: manual
+  runbook: iam_role_administratoraccess_policy
   auto_eligible: false
-  auto_reason: Role을 사용하는 서비스의 실제 필요 권한 자동 검증 불가
-  scope_key: RoleName
-  risk_note:
-    IAM Role에서 AdministratorAccess를 제거하면 해당 Role을 사용하는 서비스의 기존 AWS 작업 권한이
-    제한되어 애플리케이션 동작에 영향을 줄 수 있으므로 승인 후 실행한다
+  scope_key: null
 iam_user_administrator_access_policy:
-  policy: iam-user-administrator-access-policy
-  mode: approve
+  policy: null
+  mode: manual
+  runbook: iam_user_administrator_access_policy
   auto_eligible: false
-  auto_reason: User가 수행 중인 관리 작업 및 실제 필요 권한 자동 검증 불가
-  scope_key: UserName
-  risk_note:
-    IAM User에서 AdministratorAccess를 제거하면 해당 사용자가 수행하던 기존 AWS 관리 작업이 제한될 수
-    있으므로 승인 후 실행한다
+  scope_key: null
 iam_password_policy_expires_passwords_within_90_days_or_less:
   policy: iam-password-policy-expires-passwords-within-90-days-or-less
   mode: approve

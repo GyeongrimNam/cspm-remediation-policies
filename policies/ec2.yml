@@ -141,28 +141,3 @@ policies:
         cooldown: 24h
         post_notification: log
         
-  - name: ec2-securitygroup-allow-ingress-from-internet-to-any-port-from-ip
-    resource: aws.security-group
-    description: 특정 인터넷 IP CIDR에 모든 프로토콜과 포트가 공개된 Security Group ingress 규칙을 탐지하고, remove-permissions로 해당 규칙을 제거한다.
-    filters:
-      - or:
-          - type: ingress
-            Cidr:
-              op: regex
-              value: ^(?!0\.0\.0\.0/0$).+
-          - type: ingress
-            CidrV6:
-              op: regex
-              value: ^(?!::/0$).+
-    actions:
-      - type: remove-permissions
-        ingress: matched
-    metadata:
-      prowler_check: ec2_securitygroup_allow_ingress_from_internet_to_any_port_from_ip
-      approve:
-        disruption: traffic
-        blast_radius: resource
-        propagation_delay: seconds
-        reversible: false
-        cost_impact: none
-        risk_note: Public IP 기반 ingress rule을 제거하면 정상적인 관리자 또는 외부 서비스의 접근까지 차단될 수 있으므로 승인 후 실행한다

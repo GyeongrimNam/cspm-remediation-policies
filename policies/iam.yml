@@ -211,58 +211,6 @@ policies:
         cooldown: 24h
         post_notification: log
 
-  - name: iam-role-administratoraccess-policy
-    resource: aws.iam-role
-    description: AWS 관리형 AdministratorAccess 정책이 직접 연결된 비서비스 IAM Role을 탐지하고, set-policy로 해당 정책을 Role에서 분리한다.
-    filters:
-      - type: has-specific-managed-policy
-        key: PolicyArn
-        value: arn:aws:iam::aws:policy/AdministratorAccess
-      - type: value
-        key: Path
-        op: regex
-        value: ^(?!/aws-service-role/).*
-    actions:
-      - type: set-policy
-        state: detached
-        arn: arn:aws:iam::aws:policy/AdministratorAccess
-    metadata:
-      prowler_check: iam_role_administratoraccess_policy
-      approve:
-        disruption: access
-        blast_radius: resource
-        propagation_delay: seconds
-        reversible: true
-        cost_impact: none
-        risk_note: IAM Role에서 AdministratorAccess를 제거하면 해당 Role을 사용하는 서비스의 기존 AWS 작업 권한이 제한되어 애플리케이션 동작에 영향을 줄 수 있으므로 승인 후 실행한다
-
-  - name: iam-user-administrator-access-policy
-    resource: aws.iam-user
-
-    description: >
-      AWS 관리형 AdministratorAccess 정책이 직접 연결된 IAM User를 탐지하고,
-      set-policy로 해당 정책을 User에서 분리한다.
-
-    filters:
-      - type: policy
-        key: PolicyName
-        value: AdministratorAccess
-
-    actions:
-      - type: set-policy
-        state: detached
-        arn: arn:aws:iam::aws:policy/AdministratorAccess
-
-    metadata:
-      prowler_check: iam_user_administrator_access_policy
-      approve:
-        disruption: access
-        blast_radius: resource
-        propagation_delay: seconds
-        reversible: true
-        cost_impact: none
-        risk_note: AdministratorAccess 정책을 분리하면 해당 IAM User가 기존에 사용하던 AWS 작업 권한을 잃어 정상 업무가 중단될 수 있으므로 승인 후 실행한다
-
   - name: iam-password-policy-expires-passwords-within-90-days-or-less
     resource: aws.account
     description: IAM Password Policy의 MaxPasswordAge가 없거나 90일을 초과한 계정을 탐지하고, set-password-policy로 최대 사용 기간을 90일로 설정한다.
